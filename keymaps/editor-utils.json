@@ -1,0 +1,6 @@
+{
+    ".CodeMirror": {
+        "alt-up": "editor-utils:move-lines-up",
+        "alt-down": "editor-utils:move-lines-down"
+    }
+}

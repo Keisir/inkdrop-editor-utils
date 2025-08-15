@@ -1,0 +1,19 @@
+{
+    "name": "editor-utils",
+    "main": "./src/index",
+    "version": "1.0.0",
+    "type": "commonjs",
+    "description": "A collection of editor enhancements, including line movement, line sorting, and text case transformations for the Markdown editor.",
+    "keywords": [],
+    "repository": "https://github.com/keisir/inkdrop-editor-utils",
+    "license": "MIT",
+    "scripts": {
+        "format": "prettier --ignore-path .gitignore --write ."
+    },
+    "engines": {
+        "inkdrop": "^6.x"
+    },
+    "devDependencies": {
+        "prettier": "3.5.1"
+    }
+}
