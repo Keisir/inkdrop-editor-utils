@@ -1,6 +1,8 @@
 {
     ".CodeMirror": {
-        "alt-up": "editor-utils:move-lines-up",
-        "alt-down": "editor-utils:move-lines-down"
+        "alt-up": "editor-utils:move-line-up",
+        "alt-down": "editor-utils:move-line-down",
+        "shift-alt-up": "editor-utils:copy-line-up",
+        "shift-alt-down": "editor-utils:copy-line-down"
     }
 }

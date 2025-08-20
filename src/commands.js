@@ -1,13 +1,13 @@
 const { moveLineUp, moveLineDown } = require('@codemirror/commands');
 const { EditorCommand } = require('./editorCommand');
 
-class MoveLinesBaseAction extends EditorCommand {
+class MoveLineBaseAction extends EditorCommand {
     constructor(direction) {
-        super(`move-lines-${direction}`);
+        super(`move-line-${direction}`);
     }
 }
 
-class MoveLinesUpAction extends MoveLinesBaseAction {
+class MoveLineUpAction extends MoveLineBaseAction {
     constructor() {
         super('up');
     }
@@ -17,7 +17,7 @@ class MoveLinesUpAction extends MoveLinesBaseAction {
     }
 }
 
-class MoveLinesDownAction extends MoveLinesBaseAction {
+class MoveLineDownAction extends MoveLineBaseAction {
     constructor() {
         super('down');
     }
@@ -27,20 +27,15 @@ class MoveLinesDownAction extends MoveLinesBaseAction {
     }
 }
 
-class SortLinesBaseAction extends EditorCommand {
+class SortLineBaseAction extends EditorCommand {
     constructor(direction) {
-        super(`sort-lines-${direction}`);
+        super(`sort-line-${direction}`);
         this.direction = direction;
     }
 
     run(editor) {
         const { state } = editor;
-        const { selection } = state;
-
-        if (selection.ranges.length === 0) return false;
-
-        const transactions = [];
-        for (const range of selection.ranges) {
+        const changes = state.selection.ranges.map(range => {
             const fromLine = state.doc.lineAt(range.from).number;
             const toLine = state.doc.lineAt(range.to).number;
 
@@ -57,31 +52,22 @@ class SortLinesBaseAction extends EditorCommand {
 
             const startPos = state.doc.line(fromLine).from;
             const endPos = state.doc.line(toLine).to;
-            transactions.push({
-                changes: {
-                    from: startPos,
-                    to: endPos,
-                    insert: lines.join('\n'),
-                },
-            });
-        }
+            return { from: startPos, to: endPos, insert: lines.join('\n') };
+        });
 
-        if (transactions.length > 0) {
-            editor.dispatch(...transactions);
-            return true;
-        }
-
-        return false;
+        if (!changes.length) return false;
+        editor.dispatch({ changes });
+        return true;
     }
 }
 
-class SortLinesAscendingAction extends SortLinesBaseAction {
+class SortLineAscendingAction extends SortLineBaseAction {
     constructor() {
         super('ascending');
     }
 }
 
-class SortLinesDescendingAction extends SortLinesBaseAction {
+class SortLineDescendingAction extends SortLineBaseAction {
     constructor() {
         super('descending');
     }
@@ -95,21 +81,16 @@ class TransformSelectionBaseAction extends EditorCommand {
 
     run(editor) {
         const { state } = editor;
-        const { selection } = state;
-        if (selection.ranges.length === 0) return false;
-
-        const changes = selection.ranges.map(range => {
+        const changes = state.selection.ranges.map(range => {
             const from = range.from;
             const to = range.to;
             const selectedText = state.sliceDoc(from, to);
             return { from, to, insert: this.transformFn(selectedText) };
         });
 
-        if (changes.length > 0) {
-            editor.dispatch({ changes });
-            return true;
-        }
-        return false;
+        if (!changes.length) return false;
+        editor.dispatch({ changes });
+        return true;
     }
 }
 
@@ -178,11 +159,55 @@ class TransformToSnakeCaseAction extends TransformSelectionBaseAction {
     }
 }
 
+class CopyLineBaseAction extends EditorCommand {
+    constructor(direction) {
+        super(`copy-line-${direction}`);
+        this.direction = direction;
+    }
+
+    run(editor) {
+        const { state } = editor;
+        const changes = state.selection.ranges
+            .map(range => {
+                const fromLine = state.doc.lineAt(range.from);
+                const toLine = state.doc.lineAt(range.to);
+
+                const dupFrom = fromLine.from;
+                const dupTo = toLine.to;
+                const text = state.doc.sliceString(dupFrom, dupTo);
+
+                if (this.direction === 'down') {
+                    return { from: dupFrom, insert: text + '\n' };
+                } else if (this.direction === 'up') {
+                    return { from: dupTo, insert: '\n' + text };
+                } else {
+                    return undefined;
+                }
+            })
+            .filter(Boolean);
+        if (!changes.length) return false;
+        editor.dispatch({ changes });
+        return true;
+    }
+}
+
+class CopyLineUpAction extends CopyLineBaseAction {
+    constructor() {
+        super('up');
+    }
+}
+
+class CopyLineDownAction extends CopyLineBaseAction {
+    constructor() {
+        super('down');
+    }
+}
+
 module.exports = [
-    new MoveLinesUpAction(),
-    new MoveLinesDownAction(),
-    new SortLinesAscendingAction(),
-    new SortLinesDescendingAction(),
+    new MoveLineUpAction(),
+    new MoveLineDownAction(),
+    new SortLineAscendingAction(),
+    new SortLineDescendingAction(),
     new TransformToUppercaseAction(),
     new TransformToLowercaseAction(),
     new TransformToTitleCaseAction(),
@@ -190,4 +215,6 @@ module.exports = [
     new TransformToPascalCaseAction(),
     new TransformToKebabCaseAction(),
     new TransformToSnakeCaseAction(),
+    new CopyLineUpAction(),
+    new CopyLineDownAction(),
 ];

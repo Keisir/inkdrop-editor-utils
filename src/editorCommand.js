@@ -14,7 +14,9 @@ class EditorCommand {
             () => {
                 const editor = inkdrop.getActiveEditor();
                 if (!editor) {
-                    console.error('No active editor found. Please focus on an editor window and try again.');
+                    console.error(
+                        'No active editor found. Please focus on an editor window and try again.',
+                    );
                     return;
                 }
                 this.run(editor);
