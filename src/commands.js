@@ -1,31 +1,4 @@
-const { moveLineUp, moveLineDown } = require('@codemirror/commands');
 const { EditorCommand } = require('./editorCommand');
-
-class MoveLineBaseAction extends EditorCommand {
-    constructor(direction) {
-        super(`move-line-${direction}`);
-    }
-}
-
-class MoveLineUpAction extends MoveLineBaseAction {
-    constructor() {
-        super('up');
-    }
-
-    run(editor) {
-        return moveLineUp(editor);
-    }
-}
-
-class MoveLineDownAction extends MoveLineBaseAction {
-    constructor() {
-        super('down');
-    }
-
-    run(editor) {
-        return moveLineDown(editor);
-    }
-}
 
 class SortLineBaseAction extends EditorCommand {
     constructor(direction) {
@@ -204,8 +177,6 @@ class CopyLineDownAction extends CopyLineBaseAction {
 }
 
 module.exports = [
-    new MoveLineUpAction(),
-    new MoveLineDownAction(),
     new SortLineAscendingAction(),
     new SortLineDescendingAction(),
     new TransformToUppercaseAction(),
