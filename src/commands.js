@@ -1,3 +1,4 @@
+const { EditorSelection } = require('@codemirror/state');
 const { EditorCommand } = require('./editorCommand');
 
 class SortLineBaseAction extends EditorCommand {
@@ -176,6 +177,63 @@ class CopyLineDownAction extends CopyLineBaseAction {
     }
 }
 
+class InsertNextMatchingCaretAction extends EditorCommand {
+    constructor() {
+        super('insert-next-matching-caret');
+    }
+
+    run(editor) {
+        const { state } = editor;
+        const primaryRange = state.selection.main;
+        if (primaryRange.empty) return false;
+
+        const searchText = state.sliceDoc(primaryRange.from, primaryRange.to);
+        if (!searchText) return false;
+
+        const docText = state.doc.toString();
+        const searchLen = searchText.length;
+
+        // Start searching after the furthest end of all current selections
+        const maxTo = Math.max(...state.selection.ranges.map(r => r.to));
+
+        const isAlreadySelected = idx =>
+            state.selection.ranges.some(
+                r => r.from === idx && r.to === idx + searchLen,
+            );
+
+        // Find next unselected occurrence from a given start position
+        const findNextFrom = startPos => {
+            let idx = startPos;
+            while (idx <= docText.length - searchLen) {
+                idx = docText.indexOf(searchText, idx);
+                if (idx === -1) return -1;
+                if (!isAlreadySelected(idx)) return idx;
+                idx += searchLen;
+            }
+            return -1;
+        };
+
+        // Search forward, then wrap around to beginning if needed
+        let nextIndex = findNextFrom(maxTo);
+        if (nextIndex === -1) {
+            nextIndex = findNextFrom(0);
+        }
+        if (nextIndex === -1) return false;
+
+        const newRange = EditorSelection.range(
+            nextIndex,
+            nextIndex + searchLen,
+        );
+        const newSelection = EditorSelection.create(
+            [...state.selection.ranges, newRange],
+            state.selection.ranges.length, // make the newly added range the main one
+        );
+
+        editor.dispatch({ selection: newSelection });
+        return true;
+    }
+}
+
 module.exports = [
     new SortLineAscendingAction(),
     new SortLineDescendingAction(),
@@ -188,4 +246,5 @@ module.exports = [
     new TransformToSnakeCaseAction(),
     new CopyLineUpAction(),
     new CopyLineDownAction(),
+    new InsertNextMatchingCaretAction(),
 ];

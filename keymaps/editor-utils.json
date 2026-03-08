@@ -1,6 +1,7 @@
 {
     ".CodeMirror": {
         "shift-alt-up": "editor-utils:copy-line-up",
-        "shift-alt-down": "editor-utils:copy-line-down"
+        "shift-alt-down": "editor-utils:copy-line-down",
+        "shift-alt-.": "editor-utils:insert-next-matching-caret"
     }
 }
