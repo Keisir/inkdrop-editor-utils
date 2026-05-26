@@ -1,6 +1,6 @@
 # Editor Utils
 
-A small set of quality-of-life enhancements for the markdown editor. Copy lines, sort selections, transform text cases, and add multi-cursors to matching selections.
+A small set of quality-of-life enhancements for the markdown editor. Copy lines, sort selections, transform text cases, add multi-cursors to matching selections, and multi-cursor paste.
 
 ## Features
 
@@ -12,6 +12,7 @@ A small set of quality-of-life enhancements for the markdown editor. Copy lines,
     - Title Case
     - camelCase / PascalCase
     - kebab-case / snake_case
+- Multi-cursor paste: when pasting multiline text with multiple cursors active and the line count matches the cursor count, each line is inserted at its corresponding cursor instead of pasting the full text at every cursor
 
 ## Usage
 
@@ -28,6 +29,10 @@ The plugin ships with these default bindings:
 You can customize or add your own keybindings from Inkdrop's Preferences > Keybindings.
 
 ## Changelog
+
+### 1.1.0
+
+- Multi-cursor paste: when the number of lines in the clipboard matches the number of active cursors, each line is inserted at its corresponding cursor position
 
 ### 1.0.0
 
