@@ -1,7 +1,7 @@
 {
     "name": "editor-utils",
     "main": "./src/index",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "type": "commonjs",
     "description": "A collection of editor enhancements, including multi-cursor matching, line copy, line sorting, and text case transformations for the Markdown editor.",
     "keywords": [],
